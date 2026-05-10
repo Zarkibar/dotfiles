@@ -42,7 +42,7 @@ update_mirrors() {
     ghostmirror -Po -c "$COUNTRIES" -l ~/mirrorlist.new -L 30 -S state,outofdate,morerecent,ping
     ghostmirror -Po -mu ~/mirrorlist.new -l ~/mirrorlist.new -s light -S state,outofdate,morerecent,estimated,speed
     sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
-    sudo cp ~/mirrorlist.new /etc/pacman.d/mirrorlist
+    sudo mv ~/mirrorlist.new /etc/pacman.d/mirrorlist
     echo "mirrors updated."
 }
 
