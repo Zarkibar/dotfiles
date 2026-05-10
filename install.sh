@@ -3,9 +3,47 @@ set -euo pipefail
 
 DOTFILES_GIT="https://github.com/Zarkibar/dotfiles.git"
 YAY_GIT="https://aur.archlinux.org/yay.git"
+GHOSTMIRROR_GIT="https://aur.archlinux.org/ghostmirror.git"
+
+
+sudo -v || exit 1
+
+while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+done 2>/dev/null &
+
 
 msg() {
     printf "\n==> %s\n" "$1"
+}
+
+update_mirrors() {
+    msg "Installing and reorganizing mirrors for pacman"
+
+    if pacman -Q ghostmirror &>/dev/null; then
+	echo "ghostmirror installed"
+    else
+	if [ ! -d "$HOME/ghostmirror" ]; then
+	    git clone "$GHOSTMIRROR_GIT" "$HOME/ghostmirror"
+	else
+	    echo "ghostmirror git file already exists."
+	fi
+
+	cd ~/ghostmirror/
+        makepkg -s --noconfirm
+	sudo pacman -U --noconfirm ./*.pkg.tar.zst
+        cd
+	rm -rf ~/ghostmirror/
+    fi
+
+    COUNTRIES="Bangladesh,India,Singapore,Malaysia,Thailand,Indonesia,Japan,China,Germany,Netherlands"
+    ghostmirror -Po -c "$COUNTRIES" -l ~/mirrorlist.new -L 30 -S state,outofdate,morerecent,ping
+    ghostmirror -Po -mu ~/mirrorlist.new -l ~/mirrorlist.new -s light -S state,outofdate,morerecent,estimated,speed
+    sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+    sudo cp ~/mirrorlist.new /etc/pacman.d/mirrorlist
+    echo "mirrors updated."
 }
 
 update_system() {
@@ -69,6 +107,7 @@ setup_nvim() {
 }
 
 all() {
+    update_mirrors
     update_system    # Update the system first
     install_base    # Install necessary packages
     install_yay    # Installing yay
@@ -79,37 +118,41 @@ all() {
 }
 
 case "${1:-all}" in
-	all)
-		all
-		;;
+    all)
+	all
+	;;
 
-	update)
-		update_system
-		;;
+    mirrors)
+	update_mirrors
+	;;
 
-	base)
-		install_base
-		;;
+    update)
+	update_system
+	;;
 
-	yay)
-		install_yay
-		;;
+    base)
+	install_base
+	;;
 
-	dotfiles)
-		install_dotfiles
-		;;
+    yay)
+	install_yay
+	;;
 
-	hyprland)
-		setup_hyprland
-		;;
+    dotfiles)
+	install_dotfiles
+	;;
 
-	nvim)
-		setup_nvim
-		;;
+    hyprland)
+	setup_hyprland
+	;;
 
-	    *)
-		echo "Usage:"
-		echo "./setup.sh [all|update|base|yay|dotfiles|hyprland|nvim]"
-		exit 1
-		;;
-	esac
+    nvim)
+	setup_nvim
+	;;
+
+    *)
+	echo "Usage:"
+	echo "./setup.sh [all|update|base|yay|dotfiles|hyprland|nvim]"
+	exit 1
+	;;
+esac
