@@ -15,7 +15,7 @@ update_system() {
 
 install_base() {
     msg "Installing base packages"
-    sudo pacman -S --needed --noconfirm git stow neovim base-devel man nvim ttf-font-awesome ttf-jetbrains-mono-nerd pavucontrol nautilus wf-recorder ghostty
+    sudo pacman -S --needed --noconfirm git stow neovim base-devel man ttf-font-awesome ttf-jetbrains-mono-nerd pavucontrol nautilus wf-recorder ghostty
 }
 
 install_yay() {
