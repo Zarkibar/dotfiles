@@ -98,8 +98,9 @@ setup_hyprland() {
     msg "Setting up hyprland ecosystem"
 
     sudo pacman -S --needed --noconfirm hyprland wofi waybar kitty hyprshot swaync hyprlock hypridle hyprpaper starship
+    yay -S --noconfirm wleave
 
-    stow --restow -t "$HOME" -d "$HOME/dotfiles" backgrounds hypridle hyprland hyprlock hyprpaper kitty waybar wofi starship
+    stow --restow -t "$HOME" -d "$HOME/dotfiles" backgrounds hypridle hyprland hyprlock hyprpaper kitty waybar wofi starship wleave
 
     if [ ! grep -q "starship init bash" ~/.bashrc ]; then
         echo 'eval "$(starship init bash)"' >> ~/.bashrc

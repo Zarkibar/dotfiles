@@ -16,22 +16,23 @@
   },
 
   "tray": {
-		  "icon-size": 20,
-		  "spacing": 10
+      "icon-size": 20,
+      "spacing": 10
   },
 
   "custom/screenrecord": {
-		  "exec": "~/.config/waybar/scripts/screenrecord.sh",
-		  "return-type": "json",
-		  "interval": 1,
-		  "format": "{text}",
-		  "tooltip": true
+      "exec": "~/.config/waybar/scripts/screenrecord.sh",
+      "return-type": "json",
+      "interval": 1,
+      "format": "{text}",
+      "tooltip": true
   },
 
   "custom/power": {
-		  "format": "⏻",
-		  "on-click": "~/.config/waybar/scripts/power-menu.sh",
-		  "tooltip": false
+      "format": "⏻",
+      "tooltip": false,
+      "on-click": "wleave",
+      "interval": 0
   },
 
   "clock": {

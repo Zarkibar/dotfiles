@@ -1,0 +1,54 @@
+window {
+    background: rgba(26, 27, 38, 0.68);
+}
+
+button {
+    background: rgba(36, 40, 59, 0.92);
+    color: #c0caf5;
+    border: 1px solid rgba(122, 162, 247, 0.22);
+    border-radius: 999px;
+    margin: 14px;
+    padding: 0;
+    min-width: 130px;
+    min-height: 130px;
+    box-shadow: none;
+    transition: 120ms ease-in-out;
+}
+
+button:hover {
+    background: rgba(41, 46, 66, 0.98);
+    border-color: rgba(125, 207, 255, 0.65);
+}
+
+button:active {
+    background: rgba(26, 27, 38, 0.98);
+    border-color: rgba(122, 162, 247, 0.9);
+}
+
+button box,
+button image,
+button label {
+    margin: 0;
+    padding: 0;
+}
+
+button box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+button label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #c0caf5;
+    text-align: center;
+}
+
+button image {
+    min-width: 42px;
+    min-height: 42px;
+    margin-bottom: 8px;
+    opacity: 0.95;
+}
