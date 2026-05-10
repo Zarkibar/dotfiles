@@ -76,6 +76,14 @@ install_yay() {
     rm -rf ~/yay
 }
 
+install_personalized_packages() {
+    msg "Installing personalized packages"
+    sudo pacman -S --needed --noconfirm flatpak firefox blender mpv
+
+    flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak install --system -y flathub org.processing.processingide
+}
+
 install_dotfiles() {
     msg "Installing dotfiles"
 
@@ -108,13 +116,14 @@ setup_nvim() {
 
 all() {
     update_mirrors
-    update_system    # Update the system first
-    install_base    # Install necessary packages
-    install_yay    # Installing yay
-    install_dotfiles    # install the dotfiles
-    setup_hyprland    # Setup hyprland
+    update_system                            # Update the system first
+    install_base                             # Install necessary packages
+    install_yay                              # Installing yay
+    install_personalized_packages            # Install packages that I use daily
+    install_dotfiles                         # install the dotfiles
+    setup_hyprland                           # Setup hyprland
     # SDDM theming - NOT TOUCHED
-    setup_nvim    # Neovim config
+    setup_nvim                               # Neovim config
 }
 
 case "${1:-all}" in
@@ -136,6 +145,10 @@ case "${1:-all}" in
 
     yay)
 	install_yay
+	;;
+
+    packages)
+	install_personalized_packages
 	;;
 
     dotfiles)
