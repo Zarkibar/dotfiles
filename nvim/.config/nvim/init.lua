@@ -1,3 +1,3 @@
-require("config.options")
-require("config.keybinds")
-require("config.lazy")
+require("josean.core")
+require("josean.lazy")
+require("josean.lsp")
