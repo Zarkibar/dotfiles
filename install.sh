@@ -52,11 +52,20 @@ update_system() {
 }
 
 install_base() {
-    msg "Installing base packages"
-    sudo pacman -S --needed --noconfirm git stow neovim base-devel man pavucontrol nautilus wf-recorder ghostty
+  msg "Installing base packages"
+  sudo pacman -S --needed --noconfirm git stow neovim base-devel wget curl man pavucontrol wf-recorder ghostty
+  sudo pacman -S --needed --noconfirm pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber helvum
+  sudo pacman -S --needed --noconfirm xdg-desktop-portal-hyprland xdg-desktop-portal-gtk xdg-desktop-portal
 
-    msg "Instaling necessary fonts"
-    sudo pacman -S ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji
+  systemctl --user enable xdg-desktop-portal-hyprland.service
+  systemctl --user enable xdg-desktop-portal.service
+
+  # Instaling necessary fonts
+  sudo pacman -S --needed --noconfirm ttf-font-awesome ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji
+
+  # Installing necessary GPU drivers
+  sudo pacman -S --needed --noconfirm mesa vulkan-radeon libva-mesa-driver  # AMD
+  sudo pacman -S --needed --noconfirm mesa vulkan-intel intel-media-driver  # Intel
 }
 
 install_yay() {
@@ -100,8 +109,8 @@ install_dotfiles() {
 setup_hyprland() {
     msg "Setting up hyprland ecosystem"
 
-    sudo pacman -S --needed --noconfirm hyprland wofi waybar kitty hyprshot swaync hyprlock hypridle hyprpaper starship
-    yay -S --noconfirm wleave
+    sudo pacman -S --needed --noconfirm hyprland wofi waybar kitty nemo hyprshot swaync hyprlock hypridle hyprpaper starship
+    yay -S --noconfirm wleave clipse
 
     stow --restow -t "$HOME" -d "$HOME/dotfiles" backgrounds hypridle hyprland hyprlock hyprpaper kitty waybar wofi starship wleave
 
