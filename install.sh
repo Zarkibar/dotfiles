@@ -117,6 +117,10 @@ setup_hyprland() {
     if [ ! grep -q "starship init bash" ~/.bashrc ]; then
         echo 'eval "$(starship init bash)"' >> ~/.bashrc
     fi
+
+    # GTK
+    sudo pacman -S --needed --noconfirm nwg-look
+    yay -R colloid-gtk-theme
 }
 
 setup_nvim() {
