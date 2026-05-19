@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
 DOTFILES_GIT="https://github.com/Zarkibar/dotfiles.git"
@@ -38,7 +38,7 @@ update_mirrors() {
 	rm -rf ~/ghostmirror/
     fi
 
-    COUNTRIES="Bangladesh,India,Singapore,Malaysia,Thailand,Indonesia,Japan,China,Germany,Netherlands"
+  COUNTRIES="Bangladesh,India,Singapore,Malaysia,Thailand,Indonesia,Japan,China,Germany,Netherlands"
     ghostmirror -Po -c "$COUNTRIES" -l ~/mirrorlist.new -L 30 -S state,outofdate,morerecent,ping
     ghostmirror -Po -mu ~/mirrorlist.new -l ~/mirrorlist.new -s light -S state,outofdate,morerecent,estimated,speed
     sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
@@ -52,6 +52,9 @@ update_system() {
 }
 
 install_base() {
+  cd
+  mkdir -p Books Documents Downloads Music Projects Videos/Recording Pictures/Screenshots
+
   msg "Installing base packages"
   sudo pacman -S --needed --noconfirm git stow neovim base-devel wget curl man pavucontrol wf-recorder ghostty
   sudo pacman -S --needed --noconfirm pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber helvum
@@ -66,6 +69,9 @@ install_base() {
   # Installing necessary GPU drivers
   sudo pacman -S --needed --noconfirm mesa vulkan-radeon libva-mesa-driver  # AMD
   sudo pacman -S --needed --noconfirm mesa vulkan-intel intel-media-driver  # Intel
+
+  # Music Player
+  sudo pacman -S --needed --noconfirm mpd mpc ncmpcpp
 }
 
 install_yay() {
@@ -90,7 +96,7 @@ install_yay() {
 
 install_personalized_packages() {
     msg "Installing personalized packages"
-    sudo pacman -S --needed --noconfirm flatpak firefox blender mpv
+    sudo pacman -S --needed --noconfirm flatpak firefox blender mpv foliate
 
     flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     flatpak install --system -y flathub org.processing.processingide
@@ -131,6 +137,12 @@ setup_nvim() {
     stow --restow -t "$HOME" -d "$HOME/dotfiles" nvim
 }
 
+setup_zarch() {
+  msg "Setting up zarch"
+
+  stow --restow -t "$HOME" -d "$HOME/dotfiles" zarch
+}
+
 all() {
     update_mirrors
     update_system                            # Update the system first
@@ -141,44 +153,49 @@ all() {
     setup_hyprland                           # Setup hyprland
     # SDDM theming - NOT TOUCHED
     setup_nvim                               # Neovim config
+    setup_zarch                              # Setup zarch
 }
 
 case "${1:-all}" in
-    all)
-	all
-	;;
+  all)
+    all
+    ;;
 
-    mirrors)
-	update_mirrors
-	;;
+  mirrors)
+    update_mirrors
+    ;;
 
-    update)
-	update_system
-	;;
+  update)
+    update_system
+    ;;
 
-    base)
-	install_base
-	;;
+  base)
+    install_base
+    ;;
 
-    yay)
-	install_yay
-	;;
+  yay)
+    install_yay
+    ;;
 
-    packages)
-	install_personalized_packages
-	;;
+  packages)
+    install_personalized_packages
+    ;;
 
-    dotfiles)
-	install_dotfiles
-	;;
+  dotfiles)
+    install_dotfiles
+    ;;
 
-    hyprland)
-	setup_hyprland
-	;;
+  hyprland)
+    setup_hyprland
+    ;;
 
-    nvim)
-	setup_nvim
-	;;
+  nvim)
+    setup_nvim
+    ;;
+
+  zarch)
+    setup_zarch
+    ;;
 
     *)
 	echo "Usage:"

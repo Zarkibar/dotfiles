@@ -12,7 +12,7 @@ window#waybar {
 /* Workspaces */
 #workspaces {
   background: rgba(26, 27, 38, 0.85);
-  border-radius: 20px;
+  border-radius: 30px;
   padding: 2px;
   color: #c0caf5;
   margin-left: 8px;
@@ -62,6 +62,7 @@ window#waybar {
 
 #pulseaudio:hover,
 #cpu:hover,
+#custom-screenrecord.recording:hover,
 #custom-power:hover {
   background: #7aa2f7;
   color: #1a1b26;

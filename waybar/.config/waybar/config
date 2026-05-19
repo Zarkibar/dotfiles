@@ -25,7 +25,8 @@
       "return-type": "json",
       "interval": 1,
       "format": "{text}",
-      "tooltip": true
+      "tooltip": true,
+      "on-click": "killall wf-recorder"
   },
 
   "custom/power": {
