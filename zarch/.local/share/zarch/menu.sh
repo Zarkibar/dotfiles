@@ -1,25 +1,27 @@
 #!/bin/bash
 
-options="⏺ Record Screen
-★ Favorite Applications
-Option3
-Option4"
+options="★ Favorite Applications
+Package Manager
+⏺ Record Screen
+Git
+Emoji
+Themes
+Bucket List"
 
 chosen=$(echo -e "$options" | wofi --dmenu --prompt "Quick Action")
 
 case "$chosen" in
 		"⏺ Record Screen")
-				notify-send "Recording screen"
         wf-recorder -c libx264rgb -f ~/Videos/Recording/"$(date '+%Y-%m-%d-%H%M%S')"_wf_recorder.mkv -y
 				;;
 		"★ Favorite Applications")
-        ~/.local/share/zarch/bin/favorites.sh
+        ~/.local/share/zarch/favorites/favorites.sh
 				;;
-		"Option3")
-				notify-send "Pressed Option 3"
+		"Git")
+				~/.local/share/zarch/github/github-menu.sh
 				;;
-		"Option4")
-				notify-send "Pressed Option 4"
+		"Themes")
+				notify-send "Pressed Themes"
 				;;
 		*)
 				exit 0

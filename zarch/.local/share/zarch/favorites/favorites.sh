@@ -4,6 +4,7 @@ FAVES="Firefox
 Kitty
 Neovim
 Foliate
+KeePassXC
 Volume Control
 Helvum
 Blender
@@ -17,6 +18,7 @@ case "$chosen" in
   Kitty) kitty;;
   Neovim) kitty -e nvim;;
   Foliate) foliate;;
+  KeePassXC) flatpak run org.keepassxc.KeePassXC;;
   "Volume Control") pavucontrol;;
   Helvum) helvum;;
   Blender) blender;;
