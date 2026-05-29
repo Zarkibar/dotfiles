@@ -1,0 +1,19 @@
+[global]
+    font = Monospace 10
+    origin = top-right
+    offset = 10x10
+    width = 320
+    height = 300
+    notification_limit = 5
+    transparency = 10
+
+[urgency_low]
+    timeout = 4
+
+[urgency_normal]
+    timeout = 6
+
+[urgency_critical]
+    timeout = 0
+    background = "#cc241d"
+    foreground = "#ffffff"
