@@ -16,6 +16,7 @@ return {
 				"pyright",
 				"eslint",
 				"clangd",
+        "bashls"
 			},
 		},
 		dependencies = {

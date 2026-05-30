@@ -5,24 +5,24 @@
 }
 
 window#waybar {
-  background: rgba(26, 27, 38, 0.85);
-  color: #d4d6d8;
-  border-radius: 5px;
+  background: transparent;
+  color: #c0caf5;
 }
 
 /* Workspaces */
 #workspaces {
   background: rgba(26, 27, 38, 0.85);
-  border-radius: 5px;
-  padding: 1px;
+  border-radius: 30px;
+  padding: 2px;
   color: #c0caf5;
+  margin-left: 8px;
 }
 
 #workspaces button {
-  padding: 0px 5px;
+  padding: 6px 12px;
   margin: 4px;
-  border-radius: 3px;
-  color: #d4d6d8;
+  border-radius: 20px;
+  color: #a9b1d6;
   background: transparent;
 }
 
@@ -31,14 +31,18 @@ window#waybar {
   color: #1a1b26;
 }
 
+#workspaces button:hover {
+  background: #414868;
+}
+
 /* Clock */
 #clock,
 #custom-power {
-  background: transparent;
-  color: #d4d6d8;
+  background: rgba(26, 27, 38, 0.85);
+  color: #7aa2f7;
   font-size: 14px;
-  padding: 0px 10px;
-  border-radius: 2px;
+  padding: 6px 14px;
+  border-radius: 20px;
   margin: 4px;
   margin-left: 10px;
 }
@@ -51,14 +55,15 @@ window#waybar {
 #cpu,
 #memory {
   padding: 6px 12px;
-  margin: 0px 4px;
-  border-radius: 5px;
-  background: rgba(26, 27, 38, 0.85);
+  margin: 4px;
+  border-radius: 24px;
+  background: #1a1b26;
 }
 
 #pulseaudio:hover,
 #cpu:hover,
-#custom-screenrecord.recording:hover {
+#custom-screenrecord.recording:hover,
+#custom-power:hover {
   background: #7aa2f7;
   color: #1a1b26;
 }
