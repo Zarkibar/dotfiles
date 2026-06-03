@@ -2,7 +2,7 @@
 
 options="Add ssh key"
 
-chosen=$(echo -e "$options" | wofi --dmenu --prompt "Git Actions")
+chosen=$(echo -e "$options" | rofi -dmenu --prompt "Git Actions")
 
 case "$chosen" in
   "Add ssh key")

@@ -1,8 +1,11 @@
 #!/bin/bash
 
-options="Power Off\nReboot\nSleep\nLogout\nCancel"
+options="Power Off
+Reboot
+Sleep
+Logout"
 
-chosen=$(echo -e "$options" | wofi --dmenu --prompt "Power Menu")
+chosen=$(echo -e "$options" | rofi -dmenu --prompt "Power Menu")
 
 case "$chosen" in
 		"Power Off")

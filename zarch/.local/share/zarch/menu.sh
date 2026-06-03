@@ -1,20 +1,20 @@
 #!/bin/bash
 
-options="★ Favorite Applications
+options="Favorite Applications
 Package Manager
-⏺ Record Screen
+Record Screen
 Themes
 Git
-Emoji
-Bucket List"
+Emoji"
+#Bucket List
 
-chosen=$(echo -e "$options" | wofi --dmenu --prompt "Quick Action")
+chosen=$(echo -e "$options" | rofi -dmenu --prompt "Quick Action")
 
 case "$chosen" in
-  "⏺ Record Screen")
-    wf-recorder -f ~/Videos/Recording/"$(date '+%Y-%m-%d-%H%M%S')"_wf_recorder.mkv -y
+  "Record Screen")
+    wf-recorder -c libx264rgb -f ~/Videos/Recording/"$(date '+%Y-%m-%d-%H%M%S')"_wf_recorder.mkv -y
     ;;
-  "★ Favorite Applications")
+  "Favorite Applications")
     ~/.local/share/zarch/favorites/favorites.sh
     ;;
   "Git")
@@ -22,6 +22,12 @@ case "$chosen" in
     ;;
   "Themes")
     ~/.local/share/zarch/themes/themes.sh
+    ;;
+  "Package Manager")
+    ~/.local/share/zarch/package-manager/pac-menu.sh
+    ;;
+  "Emoji")
+    rofi -show emoji
     ;;
   *)
     exit 0

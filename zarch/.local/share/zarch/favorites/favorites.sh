@@ -11,7 +11,7 @@ Blender
 Yazi
 Music Player"
 
-chosen=$(echo "$FAVES" | wofi --dmenu --prompt "Favorites")
+chosen=$(echo "$FAVES" | rofi -dmenu --prompt "Favorites")
 
 case "$chosen" in
   Firefox) firefox;;
