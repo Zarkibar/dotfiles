@@ -8,9 +8,7 @@ chosen=$(echo -e "$options" | rofi -dmenu --prompt "Package Menu")
 
 case "$chosen" in
   "Update Packages")
-    kitty --class packagemanager -e sudo pacman -Syu
-    echo ""
-    read -p "Press Enter To Close The Window: " input
+    kitty --class packagemanager -e ~/.local/share/zarch/package-manager/update-package.sh
     ;;
 
   "Install Package")
