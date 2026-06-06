@@ -1,0 +1,73 @@
+(defpoll song
+  :interval "1s"
+  "~/.config/eww/scripts/music.sh"
+)
+
+(defpoll art
+  :interval "2s"
+  "~/.config/eww/scripts/art.sh"
+)
+
+(defpoll pos
+  :interval "1s"
+  "~/.config/eww/scripts/pos.sh"
+)
+
+(defpoll len
+  :interval "5s"
+  "~/.config/eww/scripts/len.sh"
+)
+
+(defpoll progress
+  :interval "1s"
+  "bash -c ~/.config/eww/scripts/pos.sh"
+)
+
+(defpoll progress_percent
+  :interval "1s"
+  "bash -c 'pos=$(~/.config/eww/scripts/pos.sh); len=$(~/.config/eww/scripts/len.sh); awk -v p=$pos -v l=$len \"BEGIN { if (l>0) print (p/l)*100; else print 0 }\"'"
+)
+
+(defwindow music
+  :monitor 0
+  :geometry (geometry :x "50%"
+                      :y "1%"
+                      :width "300px"
+                      :height "120px"
+                      :anchor "top center")
+
+  :stacking "fg"
+  :windowtype "dock"
+  :wm-ignore true
+  
+  (box
+    :class "music-box"
+    :orientation "v"
+    :spacing 12
+
+    (box
+      :orientation "v"
+      :spacing 6
+
+      (label
+        :text song
+        :class "song")
+     
+      ;; Controls
+      (box
+        :spacing 8
+
+        (button
+          :onclick "~/.config/eww/scripts/playpause.sh"
+          "Play/Pause")
+
+        (button
+          :onclick "playerctl -p spotify next"
+          "Next")
+
+        (button
+          :onclick "playerctl -p spotify previous"
+          "Previous"))
+    )
+  )
+)
