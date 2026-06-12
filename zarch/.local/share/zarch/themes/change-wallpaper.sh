@@ -11,4 +11,8 @@ wallpaper="$BACKGROUND_DIR/$selected"
 #hyprctl hyprpaper unload all
 hyprctl hyprpaper wallpaper ",$wallpaper"
 
-echo "$wallpaper" > ~/.config/hypr/current-wallpaper
+if [ ! -d "$HOME/.local/share/zarch/config" ]; then
+  mkdir -p "$HOME/.local/share/zarch/config"
+fi
+
+echo "$wallpaper" > ~/.local/share/zarch/config/current-theme
