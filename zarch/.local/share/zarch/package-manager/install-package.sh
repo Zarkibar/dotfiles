@@ -2,6 +2,8 @@
 
 package=$(pacman -Slq | fzf --prompt="Install > " --preview="pacman -Si {}")
 
+[ -z "$package" ] && exit 0
+
 sudo pacman -S "$package"
 
 echo ""
