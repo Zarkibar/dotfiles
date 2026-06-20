@@ -8,7 +8,7 @@
 
   "modules-left": ["hyprland/workspaces", "tray", "custom/screenrecord"],
   "modules-center": ["clock", "custom/power"],
-  "modules-right": ["pulseaudio", "network", "cpu", "memory"],
+  "modules-right": ["custom/bluetooth", "pulseaudio", "network", "cpu", "memory"],
 
   "hyprland/workspaces": {
     "format": "{name}",
@@ -40,6 +40,14 @@
     "format": "{:%A, %d %B %Y, %I:%M %p}",
     "tooltip-format": "{:%A, %d %B %Y}",
     "format-alt": "  {:%I:%M %p}"
+  },
+
+  "custom/bluetooth": {
+    "format": " {}",
+    "exec": "~/.config/waybar/scripts/bluetooth.sh",
+    "interval": 5,
+    "on-click": "blueman-manager",
+    "tooltip": true
   },
 
   "pulseaudio": {

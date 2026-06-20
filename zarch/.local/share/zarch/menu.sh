@@ -5,7 +5,8 @@ Package Manager
 Record Screen
 Themes
 Git
-Emoji"
+Emoji
+Documentation"
 #Bucket List
 
 chosen=$(echo -e "$options" | rofi -dmenu --prompt "Quick Action")
@@ -28,6 +29,9 @@ case "$chosen" in
     ;;
   "Emoji")
     rofi -show emoji
+    ;;
+  "Documentation")
+    ~/.local/share/zarch/docs/doc-menu.sh
     ;;
   *)
     exit 0
