@@ -2,6 +2,7 @@
 
 DOCS="Github
 Hyprland
+Convert bash script into an application
 DOC 1
 DOC 2"
 
@@ -13,6 +14,9 @@ case "$chosen" in
     ;;
   "Hyprland")
     kitty -e glow -p "$HOME/.local/share/zarch/docs/hyprland.md"
+    ;;
+  "Convert bash script into an application")
+    kitty -e glow -p "$HOME/.local/share/zarch/docs/from-bash-to-app.md"
     ;;
   "DOC 1")
     notify-send "DOC 1" "You have selected doc 1 from documentation"
