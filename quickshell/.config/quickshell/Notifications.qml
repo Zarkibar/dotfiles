@@ -246,7 +246,7 @@ Scope {
 
                                 Text {
                                     text: "✕"
-                                    color: Config.colors.muted
+                                    color: Config.colors.red
                                     font.family: Config.bar.fontFamily
                                     font.pixelSize: Config.bar.fontSize - 1
 

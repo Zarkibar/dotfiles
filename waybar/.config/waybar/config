@@ -30,7 +30,7 @@
   },
 
   "custom/notification": {
-    "format": "🔔 ⚠",
+    "format": "󰂚",
     "tooltip": true,
     "on-click": "qs -p ~/.config/quickshell/Notifications.qml ipc call notifications toggle"
   },
