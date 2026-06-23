@@ -50,7 +50,8 @@ window#waybar {
 #network,
 #cpu,
 #memory,
-#custom-bluetooth {
+#custom-bluetooth,
+#custom-notification {
   padding: 6px 12px;
   margin: 0px 4px;
   border-radius: 5px;
@@ -60,7 +61,8 @@ window#waybar {
 #pulseaudio:hover,
 #cpu:hover,
 #custom-screenrecord.recording:hover,
-#custom-bluetooth:hover {
+#custom-bluetooth:hover,
+#custom-notification:hover {
   background: #7aa2f7;
   color: #1a1b26;
 }

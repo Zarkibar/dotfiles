@@ -8,7 +8,7 @@
 
   "modules-left": ["hyprland/workspaces", "tray", "custom/screenrecord"],
   "modules-center": ["clock", "custom/power"],
-  "modules-right": ["custom/bluetooth", "pulseaudio", "network", "cpu", "memory"],
+  "modules-right": ["custom/bluetooth", "pulseaudio", "network", "cpu", "memory", "custom/notification"],
 
   "hyprland/workspaces": {
     "format": "{name}",
@@ -27,6 +27,12 @@
       "format": "{text}",
       "tooltip": true,
       "on-click": "killall wf-recorder"
+  },
+
+  "custom/notification": {
+    "format": "🔔 ⚠",
+    "tooltip": true,
+    "on-click": "qs -p ~/.config/quickshell/Notifications.qml ipc call notifications toggle"
   },
 
   "custom/power": {
