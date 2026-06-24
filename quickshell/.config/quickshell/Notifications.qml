@@ -3,6 +3,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Notifications
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import "config.js" as Config
 
@@ -66,7 +67,6 @@ Scope {
                     }
 
                     Layout.fillWidth: true
-                    // implicitHeight bubbles up from the inner layout
                     implicitHeight: toastInner.implicitHeight + 20
 
                     radius: 8
@@ -77,7 +77,6 @@ Scope {
 
                     RowLayout {
                         id: toastInner
-                        // anchor left/right + top only; let height be implicit
                         anchors {
                             left: parent.left
                             right: parent.right
@@ -132,17 +131,22 @@ Scope {
 
     // ── Notification center panel ─────────────────────────────────────────
     PanelWindow {
+        id: centerWindow
         visible: root.centerOpen
         anchors { top: true; right: true }
         margins { top: 50; right: 12 }
         implicitWidth: 380
-        // PanelWindow height = outer padding (24) + the ColumnLayout's natural height
-        implicitHeight: centerCol.implicitHeight + 24
+
+        // Cap height: either fit content exactly, or stop at 90% of screen height
+        property int screenHeight: centerWindow.screen?.height ?? 1080
+        property int maxPanelHeight: Math.floor(screenHeight * 0.9) - 50  // subtract top margin
+        property int naturalHeight: headerBar.implicitHeight + 24 + 24 + notifFlickable.contentHeight
+        implicitHeight: Math.min(naturalHeight, maxPanelHeight)
+
         color: "transparent"
         exclusionMode: ExclusionMode.Ignore
 
         Rectangle {
-            // Match the window exactly
             width: parent.width
             height: parent.height
             radius: 10
@@ -150,129 +154,163 @@ Scope {
             border.width: 2
             border.color: Config.colors.purple
 
-            // ColumnLayout drives its own height; do NOT anchors.fill here
-            ColumnLayout {
-                id: centerCol
-                width: parent.width - 24   // 12px padding each side
-                anchors.top: parent.top
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.topMargin: 12
-                spacing: 10
+            // ── Header (never scrolls away) ──────────────────────────────
+            RowLayout {
+                id: headerBar
+                anchors {
+                    top: parent.top
+                    left: parent.left
+                    right: parent.right
+                    margins: 12
+                }
 
-                // ── Header ──────────────────────────────────────────────
-                RowLayout {
+                Text {
                     Layout.fillWidth: true
+                    text: "Notifications"
+                    color: Config.colors.cyan
+                    font.family: Config.bar.fontFamily
+                    font.pixelSize: Config.bar.fontSize + 2
+                    font.bold: true
+                }
 
-                    Text {
-                        Layout.fillWidth: true
-                        text: "Notifications"
-                        color: Config.colors.cyan
-                        font.family: Config.bar.fontFamily
-                        font.pixelSize: Config.bar.fontSize + 2
-                        font.bold: true
+                Text {
+                    text: "Clear All"
+                    visible: history.count > 0
+                    color: Config.colors.red
+                    font.family: Config.bar.fontFamily
+                    font.pixelSize: Config.bar.fontSize - 1
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: history.clear()
                     }
+                }
+            }
 
-                    Text {
-                        text: "Clear All"
-                        visible: history.count > 0
-                        color: Config.colors.red
-                        font.family: Config.bar.fontFamily
-                        font.pixelSize: Config.bar.fontSize - 1
+            // ── Scrollable cards area ────────────────────────────────────
+            Flickable {
+                id: notifFlickable
+                anchors {
+                    top: headerBar.bottom
+                    topMargin: 10
+                    left: parent.left
+                    right: parent.right
+                    bottom: parent.bottom
+                    leftMargin: 12
+                    rightMargin: 12
+                    bottomMargin: 12
+                }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: history.clear()
-                        }
-                    }
+                clip: true
+                // contentHeight drives the Flickable — must use implicitHeight of
+                // a plain Column, NOT ColumnLayout (ColumnLayout won't report height
+                // inside a Flickable)
+                contentHeight: cardCol.implicitHeight
+                contentWidth: width
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: notifFlickable.contentHeight > notifFlickable.height
+                        ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
                 }
 
                 // ── Empty state ──────────────────────────────────────────
                 Text {
                     visible: history.count === 0
-                    Layout.fillWidth: true
+                    width: parent.width
                     text: "No notifications"
                     color: Config.colors.muted
                     font.family: Config.bar.fontFamily
                     font.pixelSize: Config.bar.fontSize - 1
                     horizontalAlignment: Text.AlignHCenter
-                    Layout.bottomMargin: 4
+                    topPadding: 4
+                    bottomPadding: 4
                 }
 
-                // ── History cards ────────────────────────────────────────
-                Repeater {
-                    model: history
-                    delegate: Rectangle {
-                        Layout.fillWidth: true
-                        Layout.bottomMargin: 4
+                // ── Card column — plain Column, not ColumnLayout ─────────
+                // ColumnLayout never reports implicitHeight inside a Flickable;
+                // Column does it correctly.
+                Column {
+                    id: cardCol
+                    width: history.count > 0
+                        ? notifFlickable.width - (notifFlickable.contentHeight > notifFlickable.height ? 14 : 0)
+                        : notifFlickable.width
+                    spacing: 8
+                    visible: history.count > 0
 
-                        radius: 6
-                        color: "transparent"
-                        border.width: 1
-                        border.color: Config.colors.purple
+                    Repeater {
+                        model: history
+                        delegate: Rectangle {
+                            width: cardCol.width
+                            // implicitHeight from inner Column
+                            implicitHeight: cardContent.implicitHeight + 16
 
-                        // implicitHeight from inner layout — this is what lets
-                        // centerCol grow/shrink correctly as items are added/removed
-                        implicitHeight: cardInner.implicitHeight + 16
+                            radius: 6
+                            color: "transparent"
+                            border.width: 1
+                            border.color: Config.colors.purple
 
-                        ColumnLayout {
-                            id: cardInner
-                            // width only, no anchors.fill — height stays implicit
-                            width: parent.width - 16
-                            anchors.top: parent.top
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.topMargin: 8
-                            spacing: 3
+                            Column {
+                                id: cardContent
+                                width: parent.width - 16
+                                anchors.top: parent.top
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.topMargin: 8
+                                spacing: 3
 
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
+                                // Title row
+                                Row {
+                                    width: parent.width
+                                    spacing: 6
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: model.summary
-                                    color: Config.colors.fg
-                                    font.family: Config.bar.fontFamily
-                                    font.pixelSize: Config.bar.fontSize
-                                    font.bold: true
-                                    elide: Text.ElideRight
+                                    Text {
+                                        width: parent.width - timeText.width - dismissText.width - 12
+                                        text: model.summary
+                                        color: Config.colors.fg
+                                        font.family: Config.bar.fontFamily
+                                        font.pixelSize: Config.bar.fontSize
+                                        font.bold: true
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        id: timeText
+                                        text: model.time
+                                        color: Config.colors.muted
+                                        font.family: Config.bar.fontFamily
+                                        font.pixelSize: Config.bar.fontSize - 3
+                                    }
+
+                                    Text {
+                                        id: dismissText
+                                        text: "✕"
+                                        color: Config.colors.muted
+                                        font.family: Config.bar.fontFamily
+                                        font.pixelSize: Config.bar.fontSize - 1
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: history.remove(index)
+                                        }
+                                    }
                                 }
 
                                 Text {
-                                    text: model.time
+                                    width: parent.width
+                                    visible: model.body !== ""
+                                    text: model.body
+                                    color: Config.colors.fg
+                                    font.family: Config.bar.fontFamily
+                                    font.pixelSize: Config.bar.fontSize - 1
+                                    wrapMode: Text.WordWrap
+                                }
+
+                                Text {
+                                    visible: model.appName !== ""
+                                    text: model.appName
                                     color: Config.colors.muted
                                     font.family: Config.bar.fontFamily
                                     font.pixelSize: Config.bar.fontSize - 3
                                 }
-
-                                Text {
-                                    text: "✕"
-                                    color: Config.colors.red
-                                    font.family: Config.bar.fontFamily
-                                    font.pixelSize: Config.bar.fontSize - 1
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        onClicked: history.remove(index)
-                                    }
-                                }
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                visible: model.body !== ""
-                                text: model.body
-                                color: Config.colors.fg
-                                font.family: Config.bar.fontFamily
-                                font.pixelSize: Config.bar.fontSize - 1
-                                wrapMode: Text.WordWrap
-                            }
-
-                            Text {
-                                visible: model.appName !== ""
-                                text: model.appName
-                                color: Config.colors.muted
-                                font.family: Config.bar.fontFamily
-                                font.pixelSize: Config.bar.fontSize - 3
                             }
                         }
                     }
