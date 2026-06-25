@@ -3,7 +3,8 @@
 DOCS="Github
 Hyprland
 Convert bash script into an application
-Quickshell notification system"
+Quickshell notification system
+Setting Up Lutris to run windows game"
 
 chosen=$(echo "$DOCS" | rofi -dmenu --prompt "Docs")
 
@@ -19,6 +20,9 @@ case "$chosen" in
     ;;
   "Quickshell notification system")
     kitty -e glow -p "$HOME/.local/share/zarch/docs/quickshell-notification.md"
+    ;;
+  "Setting Up Lutris to run windows game")
+    kitty -e glow -p "$HOME/.local/share/zarch/docs/lutris.md"
     ;;
   *)
     exit 0
