@@ -4,7 +4,6 @@ options="Favorite Applications
 Package Manager
 Record Screen
 Themes
-Git
 Emoji
 Documentation"
 #Bucket List

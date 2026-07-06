@@ -31,14 +31,14 @@
 
   "custom/notification": {
     "format": "󰂚",
-    "tooltip": true,
+    "tooltip": false,
     "on-click": "qs -p ~/.config/quickshell/Notifications.qml ipc call notifications toggle"
   },
 
   "custom/power": {
       "format": "⏻",
       "tooltip": false,
-      "on-click": "wleave",
+      "on-click": "sh ~/.config/hypr/scripts/power-menu.sh",
       "interval": 0
   },
 
@@ -76,7 +76,7 @@
   },
 
   "memory": {
-    "interval": 30,
+    "interval": 5,
     "format": "  {used:0.1f}G/{total:0.1f}G",
     "tooltip-format": "Memory"
   },
