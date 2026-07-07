@@ -5,7 +5,8 @@ Package Manager
 Record Screen
 Themes
 Emoji
-Documentation"
+Documentation
+Dual N-Back"
 #Bucket List
 
 chosen=$(echo -e "$options" | rofi -dmenu --prompt "Quick Action")
@@ -31,6 +32,9 @@ case "$chosen" in
     ;;
   "Documentation")
     ~/.local/share/zarch/docs/doc-menu.sh
+    ;;
+  "Dual N-Back")
+    xdg-open https://dual-n-back.io/
     ;;
   *)
     exit 0
