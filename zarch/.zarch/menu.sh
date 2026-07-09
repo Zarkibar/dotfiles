@@ -18,9 +18,6 @@ case "$chosen" in
   "Favorite Applications")
     ~/.zarch/favorites/favorites.sh
     ;;
-  "Git")
-    ~/.zarch/github/github-menu.sh
-    ;;
   "Themes")
     ~/.zarch/themes/themes.sh
     ;;
