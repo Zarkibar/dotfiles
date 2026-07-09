@@ -16,22 +16,22 @@ case "$chosen" in
     wf-recorder -c libx264rgb -f ~/Videos/Recording/"$(date '+%Y-%m-%d-%H%M%S')"_wf_recorder.mkv -y
     ;;
   "Favorite Applications")
-    ~/.local/share/zarch/favorites/favorites.sh
+    ~/.zarch/favorites/favorites.sh
     ;;
   "Git")
-    ~/.local/share/zarch/github/github-menu.sh
+    ~/.zarch/github/github-menu.sh
     ;;
   "Themes")
-    ~/.local/share/zarch/themes/themes.sh
+    ~/.zarch/themes/themes.sh
     ;;
   "Package Manager")
-    ~/.local/share/zarch/package-manager/pac-menu.sh
+    ~/.zarch/package-manager/pac-menu.sh
     ;;
   "Emoji")
     rofi -show emoji
     ;;
   "Documentation")
-    ~/.local/share/zarch/docs/doc-menu.sh
+    ~/.zarch/docs/doc-menu.sh
     ;;
   "Dual N-Back")
     xdg-open https://dual-n-back.io/
