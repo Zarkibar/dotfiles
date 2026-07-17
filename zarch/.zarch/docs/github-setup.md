@@ -8,7 +8,7 @@ git config --global user.name <username>
 Then generate an ssh key. (Make sure to add this new ssh key into github ssh)
 ```bash
 mkdir "$HOME/.ssh"
-ssh-keygen -t ed25519"
+ssh-keygen -t ed25519 -C "<email>"
 ```
 
 Make a ~/.ssh/config directory and write the following code there
@@ -32,6 +32,5 @@ now restart your terminal and do a ```ssh -T git@github.com``` to test if it's w
 ### If you cloned a repository and is now having trouble pushing it even if your ssh key is working...
 
 Try ```git remote -v``` and if you see `https://github.com/USER/REPO.git` instead of `git@github.com:USER/REPO.git` that means you simply need to convert the https link into an shh link. Do it by the command below.
-```bash
-git remote set-url origin git@github.com:USER/REPO.git
-```
+
+```git remote set-url origin git@github.com:USER/REPO.git```
