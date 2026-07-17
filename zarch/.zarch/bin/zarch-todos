@@ -1,0 +1,403 @@
+#!/bin/bash
+
+# todo.sh - a simple TUI todo list manager
+#
+# Each "todo list" is its own file stored under $HOME/.zarch/todos/
+# Lines in a file look like:  [ ] Buy milk   or   [x] Done task
+#
+# Usage: ./zarch-todos
+#
+
+set -uo pipefail
+
+TODOS_DIR="$HOME/.config/zarch/todos"
+mkdir -p "$TODOS_DIR"
+
+# ---------- colors ----------
+if [[ -t 1 ]]; then
+    C_RESET="\033[0m"
+    C_BOLD="\033[1m"
+    C_DIM="\033[2m"
+    C_RED="\033[31m"
+    C_GREEN="\033[32m"
+    C_YELLOW="\033[33m"
+    C_CYAN="\033[36m"
+else
+    C_RESET=""; C_BOLD=""; C_DIM=""; C_RED=""; C_GREEN=""; C_YELLOW=""; C_CYAN=""
+fi
+
+pause() {
+    echo
+    read -rp "Press Enter to continue..." _
+}
+
+header() {
+    clear
+    echo -e "${C_BOLD}${C_CYAN}==================================${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}          TODO  MANAGER${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}==================================${C_RESET}"
+    echo
+}
+
+# Sanitize a name so it is safe to use as a filename.
+sanitize_name() {
+    local name="$1"
+    # strip anything that's not alnum, dash, underscore, or space; then
+    # replace spaces with underscores.
+    name="$(echo "$name" | tr -cd '[:alnum:] _-')"
+    name="${name// /_}"
+    echo "$name"
+}
+
+# ---------------- Main menu: list of todo files ----------------
+
+list_files() {
+    # populate global array FILES with basenames (without path)
+    FILES=()
+    if [[ -d "$TODOS_DIR" ]]; then
+        while IFS= read -r -d '' f; do
+            FILES+=("$(basename "$f")")
+        done < <(find "$TODOS_DIR" -maxdepth 1 -type f -name '*.todo' -print0 | sort -z)
+    fi
+}
+
+show_file_list() {
+    list_files
+    if [[ ${#FILES[@]} -eq 0 ]]; then
+        echo -e "${C_DIM}  (no todo lists yet — create one!)${C_RESET}"
+        return
+    fi
+    local i=1
+    for f in "${FILES[@]}"; do
+        local display="${f%.todo}"
+        local total done_count
+        total=$(wc -l < "$TODOS_DIR/$f" 2>/dev/null | tr -d ' ')
+        done_count=$(grep -c '^\[x\]' "$TODOS_DIR/$f" 2>/dev/null)
+        echo -e "  ${C_BOLD}${i})${C_RESET} ${display}  ${C_DIM}(${done_count}/${total} done)${C_RESET}"
+        ((i++))
+    done
+}
+
+main_menu() {
+    while true; do
+        header
+        echo -e "${C_BOLD}Your todo lists:${C_RESET}"
+        echo
+        show_file_list
+        echo
+        echo -e "${C_BOLD}Options:${C_RESET}"
+        echo "  [number]  open that list"
+        echo "  n         create a new list"
+        echo "  d         delete a list"
+        echo "  r         rename a list"
+        echo "  q         quit"
+        echo
+        read -rp "> " choice
+
+        case "$choice" in
+            q|Q)
+                echo "Bye!"
+                exit 0
+                ;;
+            n|N)
+                create_file
+                ;;
+            d|D)
+                delete_file
+                ;;
+            r|R)
+                rename_file
+                ;;
+            ''|*[!0-9]*)
+                # not a plain number
+                if [[ -n "$choice" ]]; then
+                    echo -e "${C_RED}Invalid option.${C_RESET}"
+                    pause
+                fi
+                ;;
+            *)
+                list_files
+                local idx=$((choice))
+                if (( idx >= 1 && idx <= ${#FILES[@]} )); then
+                    open_file "${FILES[$((idx-1))]}"
+                else
+                    echo -e "${C_RED}No such list number.${C_RESET}"
+                    pause
+                fi
+                ;;
+        esac
+    done
+}
+
+create_file() {
+    header
+    read -rp "Name for the new todo list: " raw_name
+    local name
+    name="$(sanitize_name "$raw_name")"
+    if [[ -z "$name" ]]; then
+        echo -e "${C_RED}Invalid name.${C_RESET}"
+        pause
+        return
+    fi
+    local fname="$name.todo"
+    if [[ -f "$TODOS_DIR/$fname" ]]; then
+        echo -e "${C_YELLOW}A list with that name already exists. Opening it instead.${C_RESET}"
+        pause
+        open_file "$fname"
+        return
+    fi
+    : > "$TODOS_DIR/$fname"
+    echo -e "${C_GREEN}Created '${name}'.${C_RESET}"
+    pause
+    open_file "$fname"
+}
+
+delete_file() {
+    header
+    show_file_list
+    list_files
+    if [[ ${#FILES[@]} -eq 0 ]]; then
+        pause
+        return
+    fi
+    echo
+    read -rp "Number of list to delete (or blank to cancel): " choice
+    [[ -z "$choice" ]] && return
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#FILES[@]} )); then
+        echo -e "${C_RED}Invalid choice.${C_RESET}"
+        pause
+        return
+    fi
+    local target="${FILES[$((choice-1))]}"
+    read -rp "Are you sure you want to delete '${target%.todo}'? (y/N) " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        rm -f "$TODOS_DIR/$target"
+        echo -e "${C_GREEN}Deleted.${C_RESET}"
+    else
+        echo "Cancelled."
+    fi
+    pause
+}
+
+rename_file() {
+    header
+    show_file_list
+    list_files
+    if [[ ${#FILES[@]} -eq 0 ]]; then
+        pause
+        return
+    fi
+    echo
+    read -rp "Number of list to rename (or blank to cancel): " choice
+    [[ -z "$choice" ]] && return
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#FILES[@]} )); then
+        echo -e "${C_RED}Invalid choice.${C_RESET}"
+        pause
+        return
+    fi
+    local target="${FILES[$((choice-1))]}"
+    read -rp "New name: " raw_name
+    local new_name
+    new_name="$(sanitize_name "$raw_name")"
+    if [[ -z "$new_name" ]]; then
+        echo -e "${C_RED}Invalid name.${C_RESET}"
+        pause
+        return
+    fi
+    if [[ -f "$TODOS_DIR/$new_name.todo" ]]; then
+        echo -e "${C_RED}A list with that name already exists.${C_RESET}"
+        pause
+        return
+    fi
+    mv "$TODOS_DIR/$target" "$TODOS_DIR/$new_name.todo"
+    echo -e "${C_GREEN}Renamed.${C_RESET}"
+    pause
+}
+
+# ---------------- File view: manage items in one todo list ----------------
+
+show_items() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    if [[ ! -s "$path" ]]; then
+        echo -e "${C_DIM}  (this list is empty)${C_RESET}"
+        return
+    fi
+    local i=1
+    while IFS= read -r line; do
+        local mark="${line:0:3}"
+        local text="${line:4}"
+        if [[ "$mark" == "[x]" ]]; then
+            echo -e "  ${C_BOLD}${i})${C_RESET} ${C_GREEN}[x]${C_RESET} ${C_DIM}${text}${C_RESET}"
+        else
+            echo -e "  ${C_BOLD}${i})${C_RESET} [ ] ${text}"
+        fi
+        ((i++))
+    done < "$path"
+}
+
+open_file() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    [[ -f "$path" ]] || { echo -e "${C_RED}That list no longer exists.${C_RESET}"; pause; return; }
+
+    while true; do
+        header
+        echo -e "${C_BOLD}List:${C_RESET} ${file%.todo}"
+        echo
+        show_items "$file"
+        echo
+        echo -e "${C_BOLD}Options:${C_RESET}"
+        echo "  a   add a new item"
+        echo "  r   remove an item (by index)"
+        echo "  t   toggle done/undone (by index)"
+        echo "  e   edit an item (by index)"
+        echo "  c   clear all completed items"
+        echo "  b   back to main menu"
+        echo
+        read -rp "> " choice
+
+        case "$choice" in
+            a|A) add_item "$file" ;;
+            r|R) remove_item "$file" ;;
+            t|T) toggle_item "$file" ;;
+            e|E) edit_item "$file" ;;
+            c|C) clear_completed "$file" ;;
+            b|B) return ;;
+            *)
+                echo -e "${C_RED}Invalid option.${C_RESET}"
+                pause
+                ;;
+        esac
+    done
+}
+
+item_count() {
+    local file="$1"
+    wc -l < "$TODOS_DIR/$file" 2>/dev/null | tr -d ' '
+}
+
+add_item() {
+    local file="$1"
+    read -rp "New item text: " text
+    if [[ -z "$text" ]]; then
+        echo -e "${C_RED}Empty item, not added.${C_RESET}"
+        pause
+        return
+    fi
+    echo "[ ] $text" >> "$TODOS_DIR/$file"
+    echo -e "${C_GREEN}Added.${C_RESET}"
+    pause
+}
+
+remove_item() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    local count
+    count=$(item_count "$file")
+    if (( count == 0 )); then
+        echo -e "${C_DIM}Nothing to remove.${C_RESET}"
+        pause
+        return
+    fi
+    read -rp "Index to remove (or blank to cancel): " idx
+    [[ -z "$idx" ]] && return
+    if ! [[ "$idx" =~ ^[0-9]+$ ]] || (( idx < 1 || idx > count )); then
+        echo -e "${C_RED}Invalid index.${C_RESET}"
+        pause
+        return
+    fi
+    sed -i "${idx}d" "$path"
+    echo -e "${C_GREEN}Removed item #${idx}.${C_RESET}"
+    pause
+}
+
+toggle_item() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    local count
+    count=$(item_count "$file")
+    if (( count == 0 )); then
+        echo -e "${C_DIM}Nothing to toggle.${C_RESET}"
+        pause
+        return
+    fi
+    read -rp "Index to toggle (or blank to cancel): " idx
+    [[ -z "$idx" ]] && return
+    if ! [[ "$idx" =~ ^[0-9]+$ ]] || (( idx < 1 || idx > count )); then
+        echo -e "${C_RED}Invalid index.${C_RESET}"
+        pause
+        return
+    fi
+    local line
+    line=$(sed -n "${idx}p" "$path")
+    if [[ "${line:0:3}" == "[x]" ]]; then
+        line="[ ]${line:3}"
+    else
+        line="[x]${line:3}"
+    fi
+    # escape for sed replacement
+    local escaped
+    escaped=$(printf '%s\n' "$line" | sed -e 's/[\/&]/\\&/g')
+    sed -i "${idx}s/.*/${escaped}/" "$path"
+    echo -e "${C_GREEN}Toggled item #${idx}.${C_RESET}"
+    pause
+}
+
+edit_item() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    local count
+    count=$(item_count "$file")
+    if (( count == 0 )); then
+        echo -e "${C_DIM}Nothing to edit.${C_RESET}"
+        pause
+        return
+    fi
+    read -rp "Index to edit (or blank to cancel): " idx
+    [[ -z "$idx" ]] && return
+    if ! [[ "$idx" =~ ^[0-9]+$ ]] || (( idx < 1 || idx > count )); then
+        echo -e "${C_RED}Invalid index.${C_RESET}"
+        pause
+        return
+    fi
+    local old_line mark
+    old_line=$(sed -n "${idx}p" "$path")
+    mark="${old_line:0:3}"
+    read -rp "New text: " new_text
+    if [[ -z "$new_text" ]]; then
+        echo -e "${C_RED}Empty text, not changed.${C_RESET}"
+        pause
+        return
+    fi
+    local new_line="${mark} ${new_text}"
+    local escaped
+    escaped=$(printf '%s\n' "$new_line" | sed -e 's/[\/&]/\\&/g')
+    sed -i "${idx}s/.*/${escaped}/" "$path"
+    echo -e "${C_GREEN}Updated item #${idx}.${C_RESET}"
+    pause
+}
+
+clear_completed() {
+    local file="$1"
+    local path="$TODOS_DIR/$file"
+    local count
+    count=$(grep -c '^\[x\]' "$path" 2>/dev/null)
+    if (( count == 0 )); then
+        echo -e "${C_DIM}No completed items to clear.${C_RESET}"
+        pause
+        return
+    fi
+    read -rp "Clear ${count} completed item(s)? (y/N) " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        sed -i '/^\[x\]/d' "$path"
+        echo -e "${C_GREEN}Cleared.${C_RESET}"
+    else
+        echo "Cancelled."
+    fi
+    pause
+}
+
+# ---------------- entry point ----------------
+
+main_menu
