@@ -6,8 +6,8 @@ Record Screen
 Themes
 Emoji
 Documentation
-Dual N-Back"
-#Bucket List
+Dual N-Back
+TODO"
 
 chosen=$(echo -e "$options" | rofi -dmenu --prompt "Quick Action")
 
@@ -32,6 +32,9 @@ case "$chosen" in
     ;;
   "Dual N-Back")
     xdg-open https://dual-n-back.io/
+    ;;
+  "TODO")
+    kitty -e zarch-todos
     ;;
   *)
     exit 0
